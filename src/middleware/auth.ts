@@ -1,15 +1,10 @@
 import type { Context, Next } from "hono"
 
-import type { HonoContextWithGitHub } from "~/types/hono"
-
 /**
  * Middleware to extract GitHub token from Authorization header
  * Expected format: Authorization: Bearer <github_token>
  */
-export async function extractGitHubToken(
-  c: Context,
-  next: Next,
-): Promise<Response> {
+export function extractGitHubToken(c: Context, next: () => Promise<void>) {
   const authHeader = c.req.header("Authorization")
 
   if (!authHeader) {
@@ -28,5 +23,5 @@ export async function extractGitHubToken(
   // Store the token in context for use in handlers
   c.set("githubToken", token)
 
-  await next()
+  return next()
 }
