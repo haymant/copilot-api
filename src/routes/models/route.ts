@@ -1,12 +1,13 @@
 import { Hono } from "hono"
 
 import { forwardError } from "~/lib/error"
+import type { HonoContextWithGitHub } from "~/types/hono"
 import { state } from "~/lib/state"
 import { cacheModels } from "~/lib/utils"
 
 export const modelRoutes = new Hono()
 
-modelRoutes.get("/", async (c) => {
+modelRoutes.get("/", async (c: HonoContextWithGitHub) => {
   try {
     const githubToken = c.get("githubToken")
 
