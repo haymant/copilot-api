@@ -33,7 +33,7 @@ curl -X POST http://localhost:3000/v1/chat/completions \
 
 #### Get Copilot Usage
 ```bash
-curl http://localhost:3000/usage \
+curl http://localhost:3000/v1/usage \
   -H "Authorization: Bearer your_github_token_here"
 ```
 
@@ -92,12 +92,11 @@ Note: `GH_TOKEN` is no longer supported. GitHub token must be provided per-reque
 All endpoints require the `Authorization: Bearer <token>` header:
 
 - `POST /v1/chat/completions` - OpenAI compatible chat completions
-- `GET /usage` - Get Copilot usage statistics
-- `GET /models` - List available models
+- `GET /v1/usage` - Get Copilot usage statistics
 - `GET /v1/models` - OpenAI v1 compatible model listing
 - `POST /v1/embeddings` - Create embeddings
 - `POST /v1/messages` - Anthropic compatible messages endpoint
-- `GET /token` - Get current Copilot token (Copilot token refresh is handled automatically)
+- `GET /v1/token` - Get current Copilot token (Copilot token refresh is handled automatically)
 
 ## Testing
 

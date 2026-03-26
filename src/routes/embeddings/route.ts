@@ -1,13 +1,13 @@
 import { Hono } from "hono"
 
 import { forwardError } from "~/lib/error"
-import type { HonoContextWithGitHub } from "~/types/hono"
+import type { HonoContextWithGitHub, GitHubEnv } from "~/types/hono"
 import {
   createEmbeddings,
   type EmbeddingRequest,
 } from "~/services/copilot/create-embeddings"
 
-export const embeddingRoutes = new Hono()
+export const embeddingRoutes = new Hono<GitHubEnv>()
 
 embeddingRoutes.post("/", async (c: HonoContextWithGitHub) => {
   try {

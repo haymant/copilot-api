@@ -1,6 +1,7 @@
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { logger } from "hono/logger"
+import type { GitHubEnv } from "~/types/hono"
 
 import { extractGitHubToken } from "./middleware/auth"
 import { completionRoutes } from "./routes/chat-completions/route"
@@ -10,7 +11,7 @@ import { modelRoutes } from "./routes/models/route"
 import { tokenRoute } from "./routes/token/route"
 import { usageRoute } from "./routes/usage/route"
 
-export const server = new Hono()
+export const server = new Hono<GitHubEnv>()
 
 server.use(logger())
 server.use(cors())

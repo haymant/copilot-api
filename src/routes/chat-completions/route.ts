@@ -1,11 +1,11 @@
 import { Hono } from "hono"
 
 import { forwardError } from "~/lib/error"
-import type { HonoContextWithGitHub } from "~/types/hono"
+import type { HonoContextWithGitHub, GitHubEnv } from "~/types/hono"
 
 import { handleCompletion } from "./handler"
 
-export const completionRoutes = new Hono()
+export const completionRoutes = new Hono<GitHubEnv>()
 
 completionRoutes.post("/", async (c: HonoContextWithGitHub) => {
   try {
