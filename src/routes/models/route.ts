@@ -8,9 +8,11 @@ export const modelRoutes = new Hono()
 
 modelRoutes.get("/", async (c) => {
   try {
+    const githubToken = c.get("githubToken")
+
     if (!state.models) {
       // This should be handled by startup logic, but as a fallback.
-      await cacheModels()
+      await cacheModels(githubToken)
     }
 
     const models = state.models?.data.map((model) => ({

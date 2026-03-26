@@ -20,11 +20,11 @@ Authorization: Bearer <your-github-token>
 
 #### Chat Completions
 ```bash
-curl -X POST http://localhost:3000/chat/completions \
+curl -X POST http://localhost:3000/v1/chat/completions \
   -H "Authorization: Bearer your_github_token_here" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-4o",
+    "model": "gpt-5-mini",
     "messages": [
       {"role": "user", "content": "Hello!"}
     ]
@@ -41,6 +41,17 @@ curl http://localhost:3000/usage \
 ```bash
 curl http://localhost:3000/v1/models \
   -H "Authorization: Bearer your_github_token_here"
+```
+
+#### Embeddings
+```bash
+curl -X POST http://localhost:3000/v1/embeddings \
+  -H "Authorization: Bearer your_github_token_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "text-embedding-3-small", 
+    "input": "The quick brown fox jumps over the lazy dog"
+  }'
 ```
 
 ## Building
@@ -80,11 +91,11 @@ Note: `GH_TOKEN` is no longer supported. GitHub token must be provided per-reque
 
 All endpoints require the `Authorization: Bearer <token>` header:
 
-- `POST /chat/completions` - OpenAI compatible chat completions
+- `POST /v1/chat/completions` - OpenAI compatible chat completions
 - `GET /usage` - Get Copilot usage statistics
 - `GET /models` - List available models
 - `GET /v1/models` - OpenAI v1 compatible model listing
-- `POST /embeddings` - Create embeddings
+- `POST /v1/embeddings` - Create embeddings
 - `POST /v1/messages` - Anthropic compatible messages endpoint
 - `GET /token` - Get current Copilot token (Copilot token refresh is handled automatically)
 

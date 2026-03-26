@@ -16,16 +16,23 @@ async function main() {
 
     // Set up initial state
     await cacheVSCodeVersion()
-    await setupCopilotToken()
+
+    const githubToken = process.env.GH_TOKEN
+    await setupCopilotToken(githubToken)
 
     // Note: GitHub token is now provided per-request via Authorization header
     // No need to set up GitHub token at startup
 
-    consola.info("Caching available models...")
-    await cacheModels()
+    if (state.copilotToken) {
+      consola.info("Caching available models...")
+      await cacheModels(githubToken)
+    } else {
+      consola.warn("No Copilot token available at startup; models will be cached on first authenticated request")
+    }
 
     consola.info(`Starting server on port ${PORT}`)
-    await serve(server.fetch, {
+    await serve({
+      fetch: server.fetch,
       port: PORT,
     })
   } catch (error) {

@@ -4,21 +4,17 @@ import { getCopilotToken } from "~/services/github/get-copilot-token"
 
 import { state } from "./state"
 
-export const setupCopilotToken = async () => {
-  const { token, refresh_in } = await getCopilotToken()
-  state.copilotToken = token
-
-  // Display the Copilot token to the screen
-  consola.debug("GitHub Copilot Token fetched successfully!")
-  if (state.showToken) {
-    consola.info("Copilot token:", token)
+const scheduleTokenRefresh = (refreshInSeconds: number, githubToken: string) => {
+  const refreshIntervalMs = (refreshInSeconds - 60) * 1000
+  if (refreshIntervalMs <= 0) {
+    consola.warn("Invalid refresh interval, skipping automatic Copilot token refresh")
+    return
   }
 
-  const refreshInterval = (refresh_in - 60) * 1000
   setInterval(async () => {
     consola.debug("Refreshing Copilot token")
     try {
-      const { token } = await getCopilotToken()
+      const { token } = await getCopilotToken(githubToken)
       state.copilotToken = token
       consola.debug("Copilot token refreshed")
       if (state.showToken) {
@@ -26,9 +22,40 @@ export const setupCopilotToken = async () => {
       }
     } catch (error) {
       consola.error("Failed to refresh Copilot token:", error)
-      throw error
+      // Leave token as-is; subsequent calls can retry with per-request ensure
     }
-  }, refreshInterval)
+  }, refreshIntervalMs)
+}
+
+export const setupCopilotToken = async (githubToken?: string) => {
+  if (!githubToken && !state.githubToken) {
+    consola.debug("No GitHub token available at startup; skipping Copilot token setup")
+    return
+  }
+
+  const tokenSource = githubToken ?? state.githubToken
+  if (!tokenSource) return
+
+  state.githubToken = tokenSource
+  const { token, refresh_in } = await getCopilotToken(tokenSource)
+  state.copilotToken = token
+
+  consola.debug("GitHub Copilot Token fetched successfully!")
+  if (state.showToken) {
+    consola.info("Copilot token:", token)
+  }
+
+  scheduleTokenRefresh(refresh_in, tokenSource)
+}
+
+export const ensureCopilotToken = async (githubToken?: string) => {
+  if (state.copilotToken) return
+
+  if (!githubToken && !state.githubToken) {
+    throw new Error("GitHub token missing for Copilot token acquisition")
+  }
+
+  await setupCopilotToken(githubToken)
 }
 
 /**

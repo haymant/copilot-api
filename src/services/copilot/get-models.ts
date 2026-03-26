@@ -1,8 +1,17 @@
 import { copilotBaseUrl, copilotHeaders } from "~/lib/api-config"
 import { HTTPError } from "~/lib/error"
 import { state } from "~/lib/state"
+import { ensureCopilotToken } from "~/lib/token"
 
-export const getModels = async () => {
+export const getModels = async (githubToken?: string) => {
+  if (!state.copilotToken) {
+    await ensureCopilotToken(githubToken)
+  }
+
+  if (!state.copilotToken) {
+    throw new Error("Copilot token not found")
+  }
+
   const response = await fetch(`${copilotBaseUrl(state)}/models`, {
     headers: copilotHeaders(state),
   })

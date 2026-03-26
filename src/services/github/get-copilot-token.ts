@@ -1,14 +1,15 @@
-import { GITHUB_API_BASE_URL, githubHeaders } from "~/lib/api-config"
+import { GITHUB_API_BASE_URL, githubHeaders, githubHeadersWithToken } from "~/lib/api-config"
 import { HTTPError } from "~/lib/error"
 import { state } from "~/lib/state"
 
-export const getCopilotToken = async () => {
-  const response = await fetch(
-    `${GITHUB_API_BASE_URL}/copilot_internal/v2/token`,
-    {
-      headers: githubHeaders(state),
-    },
-  )
+export const getCopilotToken = async (githubToken?: string) => {
+  const headers = githubToken
+    ? githubHeadersWithToken(githubToken, state)
+    : githubHeaders(state)
+
+  const response = await fetch(`${GITHUB_API_BASE_URL}/copilot_internal/v2/token`, {
+    headers,
+  })
 
   if (!response.ok) throw new HTTPError("Failed to get Copilot token", response)
 
