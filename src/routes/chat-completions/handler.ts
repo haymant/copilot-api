@@ -1,6 +1,6 @@
-import type { Context } from "hono"
-
 import consola from "consola"
+
+import type { HonoContextWithGitHub } from "~/types/hono"
 import { streamSSE, type SSEMessage } from "hono/streaming"
 
 import { awaitApproval } from "~/lib/approval"
@@ -14,7 +14,7 @@ import {
   type ChatCompletionsPayload,
 } from "~/services/copilot/create-chat-completions"
 
-export async function handleCompletion(c: Context) {
+export async function handleCompletion(c: HonoContextWithGitHub) {
   await checkRateLimit(state)
 
   const githubToken = c.get("githubToken")

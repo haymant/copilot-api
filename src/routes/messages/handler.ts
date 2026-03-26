@@ -1,6 +1,6 @@
-import type { Context } from "hono"
-
 import consola from "consola"
+
+import type { HonoContextWithGitHub } from "~/types/hono"
 import { streamSSE } from "hono/streaming"
 
 import { awaitApproval } from "~/lib/approval"
@@ -22,7 +22,7 @@ import {
 } from "./non-stream-translation"
 import { translateChunkToAnthropicEvents } from "./stream-translation"
 
-export async function handleCompletion(c: Context) {
+export async function handleCompletion(c: HonoContextWithGitHub) {
   await checkRateLimit(state)
 
   const githubToken = c.get("githubToken")

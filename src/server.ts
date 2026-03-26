@@ -18,26 +18,16 @@ server.use(cors())
 server.get("/", (c) => c.text("Server running"))
 
 // Apply auth middleware to all routes that need GitHub token
-server.use("/chat/completions", extractGitHubToken)
-server.use("/models", extractGitHubToken)
-server.use("/embeddings", extractGitHubToken)
-server.use("/usage", extractGitHubToken)
-
-server.route("/chat/completions", completionRoutes)
-server.route("/models", modelRoutes)
-server.route("/embeddings", embeddingRoutes)
-server.route("/usage", usageRoute)
-server.route("/token", tokenRoute)
-
-// Compatibility with tools that expect v1/ prefix
 server.use("/v1/chat/completions", extractGitHubToken)
 server.use("/v1/models", extractGitHubToken)
 server.use("/v1/embeddings", extractGitHubToken)
+server.use("/v1/usage", extractGitHubToken)
+server.use("/v1/messages", extractGitHubToken)
 
+// All routes use v1 prefix for consistency
 server.route("/v1/chat/completions", completionRoutes)
 server.route("/v1/models", modelRoutes)
 server.route("/v1/embeddings", embeddingRoutes)
-
-// Anthropic compatible endpoints (also needs auth)
-server.use("/v1/messages", extractGitHubToken)
+server.route("/v1/usage", usageRoute)
 server.route("/v1/messages", messageRoutes)
+server.route("/v1/token", tokenRoute)
