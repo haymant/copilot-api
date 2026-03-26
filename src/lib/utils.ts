@@ -1,4 +1,4 @@
-import consola from "consola"
+import { consola } from "consola"
 
 import { getModels } from "~/services/copilot/get-models"
 import { getVSCodeVersion } from "~/services/get-vscode-version"

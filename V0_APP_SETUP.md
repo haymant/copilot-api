@@ -79,6 +79,84 @@ docker build -t copilot-api .
 docker run -p 3000:3000 copilot-api
 ```
 
+## Vercel Development And Deployment
+
+This project includes a Vercel function entry at `api/index.js` and uses `vercel.json` to route all requests through that handler.
+
+### Requirements
+
+- Use Node.js `22.x` for Vercel builds.
+- Keep `vercel-build` in `package.json` as `bun run build`.
+- Keep `vercel.json` pointing to `api/index.js` and including `dist/**` in the function bundle.
+
+### Local Vercel Development
+
+Build the project first so the Vercel handler can import the generated runtime bundle:
+
+```bash
+bun install
+vercel build
+vercel dev
+```
+
+Once `vercel dev` is running, test the API locally:
+
+```bash
+curl http://localhost:3000/v1/models \
+  -H "Authorization: Bearer your_github_token_here"
+```
+
+```bash
+curl -X POST http://localhost:3000/v1/chat/completions \
+  -H "Authorization: Bearer your_github_token_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-5-mini",
+    "messages": [
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'
+```
+
+```bash
+curl -X POST http://localhost:3000/v1/embeddings \
+  -H "Authorization: Bearer your_github_token_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "text-embedding-3-small",
+    "input": "The quick brown fox jumps over the lazy dog"
+  }'
+```
+
+### Production Deployment On Vercel
+
+Deploy from the repository root:
+
+```bash
+vercel --prod
+```
+
+If Vercel reports a Node version error, set this in `package.json`:
+
+```json
+"engines": {
+  "node": "22.x"
+}
+```
+
+After deployment, test the public URL:
+
+```bash
+curl https://your-project.vercel.app/v1/models \
+  -H "Authorization: Bearer your_github_token_here"
+```
+
+### Troubleshooting
+
+- If `vercel dev` fails with missing `dist` imports, run `vercel build` again first.
+- If the endpoint returns `401 Bad credentials`, the GitHub token is invalid or expired.
+- If Vercel shows an authentication page instead of your API response, disable Vercel deployment protection or use a protection bypass token.
+
 ## Environment Variables
 
 The following environment variables are now optional:

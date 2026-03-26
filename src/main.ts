@@ -3,32 +3,14 @@
 import consola from "consola"
 import { serve } from "srvx"
 
-import { state } from "./lib/state"
-import { setupCopilotToken } from "./lib/token"
-import { cacheModels, cacheVSCodeVersion } from "./lib/utils"
-import { app } from "./server"
+import { app, initializeApp } from "./runtime"
 
 const PORT = parseInt(process.env.PORT || "3000", 10)
 
 async function main() {
   try {
     consola.info("Starting Copilot API Server...")
-
-    // Set up initial state
-    await cacheVSCodeVersion()
-
-    const githubToken = process.env.GH_TOKEN
-    await setupCopilotToken(githubToken)
-
-    // Note: GitHub token is now provided per-request via Authorization header
-    // No need to set up GitHub token at startup
-
-    if (state.copilotToken) {
-      consola.info("Caching available models...")
-      await cacheModels(githubToken)
-    } else {
-      consola.warn("No Copilot token available at startup; models will be cached on first authenticated request")
-    }
+    await initializeApp()
 
     consola.info(`Starting server on port ${PORT}`)
     await serve({

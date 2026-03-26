@@ -7,6 +7,10 @@ export const usageRoute = new Hono<GitHubEnv>()
 usageRoute.get("/", async (c: HonoContextWithGitHub) => {
   try {
     const githubToken = c.get("githubToken")
+    if (!githubToken) {
+      return c.json({ error: "Missing GitHub token" }, 401)
+    }
+
     const usage = await getCopilotUsage(githubToken)
     return c.json(usage)
   } catch (error) {
