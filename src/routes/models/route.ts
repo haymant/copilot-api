@@ -1,13 +1,13 @@
 import { Hono } from "hono"
 
 import { forwardError } from "~/lib/error"
+import type { GitHubEnv, HonoContextWithGitHub } from "~/types/hono"
 import { state } from "~/lib/state"
 import { cacheModels } from "~/lib/utils"
-import type { GitHubEnv, HonoContextWithGitHub } from "~/types/hono"
 
 export const modelRoutes = new Hono<GitHubEnv>()
 
-modelRoutes.get("/", async (c: import("~/types/hono").HonoContextWithGitHub) => {
+modelRoutes.get("/", async (c: HonoContextWithGitHub) => {
   try {
     const githubToken = c.get("githubToken")
 

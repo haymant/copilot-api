@@ -6,7 +6,7 @@ import { serve } from "srvx"
 import { state } from "./lib/state"
 import { setupCopilotToken } from "./lib/token"
 import { cacheModels, cacheVSCodeVersion } from "./lib/utils"
-import { server } from "./server"
+import { app } from "./server"
 
 const PORT = parseInt(process.env.PORT || "3000", 10)
 
@@ -32,7 +32,7 @@ async function main() {
 
     consola.info(`Starting server on port ${PORT}`)
     await serve({
-      fetch: server.fetch,
+      fetch: app.fetch,
       port: PORT,
     })
   } catch (error) {

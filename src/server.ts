@@ -11,24 +11,24 @@ import { modelRoutes } from "./routes/models/route"
 import { tokenRoute } from "./routes/token/route"
 import { usageRoute } from "./routes/usage/route"
 
-export const server = new Hono<GitHubEnv>()
+export const app = new Hono<GitHubEnv>()
 
-server.use(logger())
-server.use(cors())
+app.use(logger())
+app.use(cors())
 
-server.get("/", (c) => c.text("Server running"))
+app.get("/", (c) => c.text("Server running"))
 
 // Apply auth middleware to all routes that need GitHub token
-server.use("/v1/chat/completions", extractGitHubToken)
-server.use("/v1/models", extractGitHubToken)
-server.use("/v1/embeddings", extractGitHubToken)
-server.use("/v1/usage", extractGitHubToken)
-server.use("/v1/messages", extractGitHubToken)
+app.use("/v1/chat/completions", extractGitHubToken)
+app.use("/v1/models", extractGitHubToken)
+app.use("/v1/embeddings", extractGitHubToken)
+app.use("/v1/usage", extractGitHubToken)
+app.use("/v1/messages", extractGitHubToken)
 
 // All routes use v1 prefix for consistency
-server.route("/v1/chat/completions", completionRoutes)
-server.route("/v1/models", modelRoutes)
-server.route("/v1/embeddings", embeddingRoutes)
-server.route("/v1/usage", usageRoute)
-server.route("/v1/messages", messageRoutes)
-server.route("/v1/token", tokenRoute)
+app.route("/v1/chat/completions", completionRoutes)
+app.route("/v1/models", modelRoutes)
+app.route("/v1/embeddings", embeddingRoutes)
+app.route("/v1/usage", usageRoute)
+app.route("/v1/messages", messageRoutes)
+app.route("/v1/token", tokenRoute)

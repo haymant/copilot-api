@@ -1,5 +1,4 @@
 import { Hono } from "hono"
-
 import type { HonoContextWithGitHub, GitHubEnv } from "~/types/hono"
 import { getCopilotUsage } from "~/services/github/get-copilot-usage"
 

@@ -31,6 +31,7 @@
     "prepare": "simple-git-hooks",
     "release": "bumpp && bun publish --access public",
     "start": "NODE_ENV=production bun run dist/main.js",
+    "vercel-build": "bun run build",
     "typecheck": "tsc"
   },
   "simple-git-hooks": {
