@@ -47,6 +47,16 @@ export const githubHeaders = (state: State) => ({
   "x-vscode-user-agent-library-version": "electron-fetch",
 })
 
+export const githubHeadersWithToken = (token: string, state: State) => ({
+  ...standardHeaders(),
+  authorization: `token ${token}`,
+  "editor-version": `vscode/${state.vsCodeVersion}`,
+  "editor-plugin-version": EDITOR_PLUGIN_VERSION,
+  "user-agent": USER_AGENT,
+  "x-github-api-version": API_VERSION,
+  "x-vscode-user-agent-library-version": "electron-fetch",
+})
+
 export const GITHUB_BASE_URL = "https://github.com"
 export const GITHUB_CLIENT_ID = "Iv1.b507a08c87ecfe98"
 export const GITHUB_APP_SCOPES = ["read:user"].join(" ")

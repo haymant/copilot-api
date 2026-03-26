@@ -15,11 +15,9 @@ RUN bun install --frozen-lockfile --production --ignore-scripts --no-cache
 
 COPY --from=builder /app/dist ./dist
 
-EXPOSE 4141
+EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget --spider -q http://localhost:4141/ || exit 1
+  CMD wget --spider -q http://localhost:3000/ || exit 1
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bun", "run", "dist/main.js"]

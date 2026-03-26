@@ -1,19 +1,37 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
-import { defineCommand, runMain } from "citty"
+import consola from "consola"
+import { serve } from "srvx"
 
-import { auth } from "./auth"
-import { checkUsage } from "./check-usage"
-import { debug } from "./debug"
-import { start } from "./start"
+import { state } from "./lib/state"
+import { setupCopilotToken, setupGitHubToken } from "./lib/token"
+import { cacheModels, cacheVSCodeVersion } from "./lib/utils"
+import { server } from "./server"
 
-const main = defineCommand({
-  meta: {
-    name: "copilot-api",
-    description:
-      "A wrapper around GitHub Copilot API to make it OpenAI compatible, making it usable for other tools.",
-  },
-  subCommands: { auth, start, "check-usage": checkUsage, debug },
-})
+const PORT = parseInt(process.env.PORT || "3000", 10)
 
-await runMain(main)
+async function main() {
+  try {
+    consola.info("Starting Copilot API Server...")
+
+    // Set up initial state
+    await cacheVSCodeVersion()
+    await setupCopilotToken()
+
+    // Note: GitHub token is now provided per-request via Authorization header
+    // No need to set up GitHub token at startup
+
+    consola.info("Caching available models...")
+    await cacheModels()
+
+    consola.info(`Starting server on port ${PORT}`)
+    await serve(server.fetch, {
+      port: PORT,
+    })
+  } catch (error) {
+    consola.error("Failed to start server:", error)
+    process.exit(1)
+  }
+}
+
+main()

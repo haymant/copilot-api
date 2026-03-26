@@ -6,7 +6,8 @@ export const usageRoute = new Hono()
 
 usageRoute.get("/", async (c) => {
   try {
-    const usage = await getCopilotUsage()
+    const githubToken = c.get("githubToken")
+    const usage = await getCopilotUsage(githubToken)
     return c.json(usage)
   } catch (error) {
     console.error("Error fetching Copilot usage:", error)

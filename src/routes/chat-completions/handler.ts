@@ -17,6 +17,8 @@ import {
 export async function handleCompletion(c: Context) {
   await checkRateLimit(state)
 
+  const githubToken = c.get("githubToken")
+  
   let payload = await c.req.json<ChatCompletionsPayload>()
   consola.debug("Request payload:", JSON.stringify(payload).slice(-400))
 
@@ -47,7 +49,7 @@ export async function handleCompletion(c: Context) {
     consola.debug("Set max_tokens to:", JSON.stringify(payload.max_tokens))
   }
 
-  const response = await createChatCompletions(payload)
+  const response = await createChatCompletions(payload, githubToken)
 
   if (isNonStreaming(response)) {
     consola.debug("Non-streaming response:", JSON.stringify(response))
