@@ -1,7 +1,8 @@
+import consola from "consola"
 import { copilotHeaders, copilotBaseUrl } from "~/lib/api-config"
 import { HTTPError } from "~/lib/error"
 import { state } from "~/lib/state"
-import { ensureCopilotToken } from "~/lib/token"
+import { ensureCopilotToken, setupCopilotToken } from "~/lib/token"
 
 const embeddingModelAliases: Record<string, string> = {
   "text-embedding-3-small": "gpt-4o-embedding",
@@ -43,11 +44,20 @@ export const createEmbeddings = async (
     input: Array.isArray(payload.input) ? payload.input : [payload.input],
   }
 
-  const response = await fetch(`${copilotBaseUrl(state)}/embeddings`, {
-    method: "POST",
-    headers: copilotHeaders(state),
-    body: JSON.stringify(requestPayload),
-  })
+  const performRequest = async () => {
+    return fetch(`${copilotBaseUrl(state)}/embeddings`, {
+      method: "POST",
+      headers: copilotHeaders(state),
+      body: JSON.stringify(requestPayload),
+    })
+  }
+
+  let response = await performRequest()
+  if (response.status === 401 && githubToken) {
+    consola.warn("Copilot token expired for embeddings; refreshing and retrying")
+    await setupCopilotToken(githubToken)
+    response = await performRequest()
+  }
 
   if (!response.ok) {
     const errorBody = await response.text().catch(() => "<body unavailable>")

@@ -4,7 +4,7 @@ import { events } from "fetch-event-stream"
 import { copilotHeaders, copilotBaseUrl } from "~/lib/api-config"
 import { HTTPError } from "~/lib/error"
 import { state } from "~/lib/state"
-import { ensureCopilotToken } from "~/lib/token"
+import { ensureCopilotToken, setupCopilotToken } from "~/lib/token"
 
 export const createChatCompletions = async (
   payload: ChatCompletionsPayload,
@@ -36,11 +36,20 @@ export const createChatCompletions = async (
     "X-Initiator": isAgentCall ? "agent" : "user",
   }
 
-  const response = await fetch(`${copilotBaseUrl(state)}/chat/completions`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(payload),
-  })
+  const performRequest = async () => {
+    return fetch(`${copilotBaseUrl(state)}/chat/completions`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+    })
+  }
+
+  let response = await performRequest()
+  if (response.status === 401 && githubToken) {
+    consola.warn("Copilot token appears expired; refreshing and retrying")
+    await setupCopilotToken(githubToken)
+    response = await performRequest()
+  }
 
   if (!response.ok) {
     consola.error("Failed to create chat completions", response)

@@ -48,15 +48,23 @@ export const setupCopilotToken = async (githubToken?: string) => {
   scheduleTokenRefresh(refresh_in, tokenSource)
 }
 
-export const ensureCopilotToken = async (githubToken?: string) => {
-  if (state.copilotToken) return
+export const invalidateCopilotToken = () => {
+  state.copilotToken = undefined
+}
 
-  if (!githubToken && !state.githubToken) {
+export const ensureCopilotToken = async (githubToken?: string) => {
+  const tokenSource = githubToken ?? state.githubToken
+
+  if (!tokenSource) {
     throw new Error("GitHub token missing for Copilot token acquisition")
   }
 
-  await setupCopilotToken(githubToken)
+  const isTokenSourceChanged = githubToken && state.githubToken !== githubToken
+  if (!state.copilotToken || isTokenSourceChanged) {
+    await setupCopilotToken(tokenSource)
+  }
 }
+
 
 /**
  * Note: GitHub token is no longer set at startup.
