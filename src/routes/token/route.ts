@@ -1,8 +1,9 @@
 import { Hono } from "hono"
 
+import type { GitHubEnv } from "~/types/hono"
 import { state } from "~/lib/state"
 
-export const tokenRoute = new Hono()
+export const tokenRoute = new Hono<GitHubEnv>()
 
 tokenRoute.get("/", (c) => {
   try {

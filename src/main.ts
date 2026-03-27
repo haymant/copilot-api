@@ -1,19 +1,26 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
-import { defineCommand, runMain } from "citty"
+import consola from "consola"
+import { serve } from "srvx"
 
-import { auth } from "./auth"
-import { checkUsage } from "./check-usage"
-import { debug } from "./debug"
-import { start } from "./start"
+import { app, initializeApp } from "./runtime"
 
-const main = defineCommand({
-  meta: {
-    name: "copilot-api",
-    description:
-      "A wrapper around GitHub Copilot API to make it OpenAI compatible, making it usable for other tools.",
-  },
-  subCommands: { auth, start, "check-usage": checkUsage, debug },
-})
+const PORT = parseInt(process.env.PORT || "3000", 10)
 
-await runMain(main)
+async function main() {
+  try {
+    consola.info("Starting Copilot API Server...")
+    await initializeApp()
+
+    consola.info(`Starting server on port ${PORT}`)
+    await serve({
+      fetch: app.fetch,
+      port: PORT,
+    })
+  } catch (error) {
+    consola.error("Failed to start server:", error)
+    process.exit(1)
+  }
+}
+
+main()

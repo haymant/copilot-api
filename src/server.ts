@@ -1,7 +1,9 @@
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { logger } from "hono/logger"
+import type { GitHubEnv } from "~/types/hono"
 
+import { extractGitHubToken } from "./middleware/auth"
 import { completionRoutes } from "./routes/chat-completions/route"
 import { embeddingRoutes } from "./routes/embeddings/route"
 import { messageRoutes } from "./routes/messages/route"
@@ -9,23 +11,24 @@ import { modelRoutes } from "./routes/models/route"
 import { tokenRoute } from "./routes/token/route"
 import { usageRoute } from "./routes/usage/route"
 
-export const server = new Hono()
+export const app = new Hono<GitHubEnv>()
 
-server.use(logger())
-server.use(cors())
+app.use(logger())
+app.use(cors())
 
-server.get("/", (c) => c.text("Server running"))
+app.get("/", (c) => c.text("Server running"))
 
-server.route("/chat/completions", completionRoutes)
-server.route("/models", modelRoutes)
-server.route("/embeddings", embeddingRoutes)
-server.route("/usage", usageRoute)
-server.route("/token", tokenRoute)
+// Apply auth middleware to all routes that need GitHub token
+app.use("/v1/chat/completions", extractGitHubToken)
+app.use("/v1/models", extractGitHubToken)
+app.use("/v1/embeddings", extractGitHubToken)
+app.use("/v1/usage", extractGitHubToken)
+app.use("/v1/messages", extractGitHubToken)
 
-// Compatibility with tools that expect v1/ prefix
-server.route("/v1/chat/completions", completionRoutes)
-server.route("/v1/models", modelRoutes)
-server.route("/v1/embeddings", embeddingRoutes)
-
-// Anthropic compatible endpoints
-server.route("/v1/messages", messageRoutes)
+// All routes use v1 prefix for consistency
+app.route("/v1/chat/completions", completionRoutes)
+app.route("/v1/models", modelRoutes)
+app.route("/v1/embeddings", embeddingRoutes)
+app.route("/v1/usage", usageRoute)
+app.route("/v1/messages", messageRoutes)
+app.route("/v1/token", tokenRoute)

@@ -6,17 +6,14 @@
     "skipLibCheck": true,
 
     "allowJs": true,
-    "moduleResolution": "Bundler",
+    "moduleResolution": "node",
     "moduleDetection": "force",
-    "erasableSyntaxOnly": true,
-    "verbatimModuleSyntax": true,
     "noEmit": true,
 
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"]

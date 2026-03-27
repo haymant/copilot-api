@@ -1,14 +1,21 @@
-import consola from "consola"
 import { events } from "fetch-event-stream"
 
 import { copilotHeaders, copilotBaseUrl } from "~/lib/api-config"
 import { HTTPError } from "~/lib/error"
 import { state } from "~/lib/state"
+import { ensureCopilotToken, setupCopilotToken } from "~/lib/token"
 
 export const createChatCompletions = async (
   payload: ChatCompletionsPayload,
+  githubToken?: string,
 ) => {
-  if (!state.copilotToken) throw new Error("Copilot token not found")
+  if (!state.copilotToken) {
+    await ensureCopilotToken(githubToken)
+  }
+
+  if (!state.copilotToken) {
+    throw new Error("Copilot token not found")
+  }
 
   const enableVision = payload.messages.some(
     (x) =>
@@ -28,14 +35,23 @@ export const createChatCompletions = async (
     "X-Initiator": isAgentCall ? "agent" : "user",
   }
 
-  const response = await fetch(`${copilotBaseUrl(state)}/chat/completions`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(payload),
-  })
+  const performRequest = async () => {
+    return fetch(`${copilotBaseUrl(state)}/chat/completions`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+    })
+  }
+
+  let response = await performRequest()
+  if (response.status === 401 && githubToken) {
+    console.warn("Copilot token appears expired; refreshing and retrying")
+    await setupCopilotToken(githubToken)
+    response = await performRequest()
+  }
 
   if (!response.ok) {
-    consola.error("Failed to create chat completions", response)
+    console.error("Failed to create chat completions", response)
     throw new HTTPError("Failed to create chat completions", response)
   }
 

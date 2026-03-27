@@ -1,12 +1,17 @@
 import { Hono } from "hono"
-
+import type { HonoContextWithGitHub, GitHubEnv } from "~/types/hono"
 import { getCopilotUsage } from "~/services/github/get-copilot-usage"
 
-export const usageRoute = new Hono()
+export const usageRoute = new Hono<GitHubEnv>()
 
-usageRoute.get("/", async (c) => {
+usageRoute.get("/", async (c: HonoContextWithGitHub) => {
   try {
-    const usage = await getCopilotUsage()
+    const githubToken = c.get("githubToken")
+    if (!githubToken) {
+      return c.json({ error: "Missing GitHub token" }, 401)
+    }
+
+    const usage = await getCopilotUsage(githubToken)
     return c.json(usage)
   } catch (error) {
     console.error("Error fetching Copilot usage:", error)

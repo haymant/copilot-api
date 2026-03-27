@@ -1,4 +1,4 @@
-import consola from "consola"
+import { consola } from "consola"
 
 import { getModels } from "~/services/copilot/get-models"
 import { getVSCodeVersion } from "~/services/get-vscode-version"
@@ -13,8 +13,8 @@ export const sleep = (ms: number) =>
 export const isNullish = (value: unknown): value is null | undefined =>
   value === null || value === undefined
 
-export async function cacheModels(): Promise<void> {
-  const models = await getModels()
+export async function cacheModels(githubToken?: string): Promise<void> {
+  const models = await getModels(githubToken)
   state.models = models
 }
 

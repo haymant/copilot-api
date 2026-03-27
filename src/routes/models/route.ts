@@ -1,16 +1,19 @@
 import { Hono } from "hono"
 
 import { forwardError } from "~/lib/error"
+import type { GitHubEnv, HonoContextWithGitHub } from "~/types/hono"
 import { state } from "~/lib/state"
 import { cacheModels } from "~/lib/utils"
 
-export const modelRoutes = new Hono()
+export const modelRoutes = new Hono<GitHubEnv>()
 
-modelRoutes.get("/", async (c) => {
+modelRoutes.get("/", async (c: HonoContextWithGitHub) => {
   try {
+    const githubToken = c.get("githubToken")
+
     if (!state.models) {
       // This should be handled by startup logic, but as a fallback.
-      await cacheModels()
+      await cacheModels(githubToken)
     }
 
     const models = state.models?.data.map((model) => ({

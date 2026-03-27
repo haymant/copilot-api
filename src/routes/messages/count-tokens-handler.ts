@@ -1,7 +1,6 @@
-import type { Context } from "hono"
-
 import consola from "consola"
 
+import type { HonoContextWithGitHub } from "~/types/hono"
 import { state } from "~/lib/state"
 import { getTokenCount } from "~/lib/tokenizer"
 
@@ -11,7 +10,7 @@ import { translateToOpenAI } from "./non-stream-translation"
 /**
  * Handles token counting for Anthropic messages
  */
-export async function handleCountTokens(c: Context) {
+export async function handleCountTokens(c: HonoContextWithGitHub) {
   try {
     const anthropicBeta = c.req.header("anthropic-beta")
 

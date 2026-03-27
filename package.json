@@ -1,6 +1,7 @@
 {
   "name": "copilot-api",
   "version": "0.7.0",
+  "engines": { "node": "22.x" },
   "description": "Turn GitHub Copilot into OpenAI/Anthropic API compatible server. Usable with Claude Code!",
   "keywords": [
     "proxy",
@@ -30,7 +31,8 @@
     "prepack": "bun run build",
     "prepare": "simple-git-hooks",
     "release": "bumpp && bun publish --access public",
-    "start": "NODE_ENV=production bun run ./src/main.ts",
+    "start": "NODE_ENV=production bun run dist/main.js",
+    "vercel-build": "bun run build",
     "typecheck": "tsc"
   },
   "simple-git-hooks": {
@@ -40,8 +42,6 @@
     "*": "bun run lint --fix"
   },
   "dependencies": {
-    "citty": "^0.1.6",
-    "clipboardy": "^5.0.0",
     "consola": "^3.4.2",
     "fetch-event-stream": "^0.1.5",
     "gpt-tokenizer": "^3.0.1",
