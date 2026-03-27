@@ -1,4 +1,3 @@
-import consola from "consola"
 import { events } from "fetch-event-stream"
 
 import { copilotHeaders, copilotBaseUrl } from "~/lib/api-config"
@@ -46,13 +45,13 @@ export const createChatCompletions = async (
 
   let response = await performRequest()
   if (response.status === 401 && githubToken) {
-    consola.warn("Copilot token appears expired; refreshing and retrying")
+    console.warn("Copilot token appears expired; refreshing and retrying")
     await setupCopilotToken(githubToken)
     response = await performRequest()
   }
 
   if (!response.ok) {
-    consola.error("Failed to create chat completions", response)
+    console.error("Failed to create chat completions", response)
     throw new HTTPError("Failed to create chat completions", response)
   }
 

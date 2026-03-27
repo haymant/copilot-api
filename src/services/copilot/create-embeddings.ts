@@ -1,4 +1,3 @@
-import consola from "consola"
 import { copilotHeaders, copilotBaseUrl } from "~/lib/api-config"
 import { HTTPError } from "~/lib/error"
 import { state } from "~/lib/state"
@@ -54,7 +53,9 @@ export const createEmbeddings = async (
 
   let response = await performRequest()
   if (response.status === 401 && githubToken) {
-    consola.warn("Copilot token expired for embeddings; refreshing and retrying")
+    console.warn(
+      "Copilot token expired for embeddings; refreshing and retrying",
+    )
     await setupCopilotToken(githubToken)
     response = await performRequest()
   }

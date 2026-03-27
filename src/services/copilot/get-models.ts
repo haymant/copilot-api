@@ -1,4 +1,3 @@
-import consola from "consola"
 import { copilotBaseUrl, copilotHeaders } from "~/lib/api-config"
 import { HTTPError } from "~/lib/error"
 import { state } from "~/lib/state"
@@ -21,7 +20,7 @@ export const getModels = async (githubToken?: string) => {
 
   let response = await performRequest()
   if (response.status === 401 && githubToken) {
-    consola.debug("Copilot token expired for models; refreshing")
+    console.debug("Copilot token expired for models; refreshing")
     await setupCopilotToken(githubToken)
     response = await performRequest()
   }

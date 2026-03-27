@@ -4,10 +4,15 @@ import { getCopilotToken } from "~/services/github/get-copilot-token"
 
 import { state } from "./state"
 
-const scheduleTokenRefresh = (refreshInSeconds: number, githubToken: string) => {
+const scheduleTokenRefresh = (
+  refreshInSeconds: number,
+  githubToken: string,
+) => {
   const refreshIntervalMs = (refreshInSeconds - 60) * 1000
   if (refreshIntervalMs <= 0) {
-    consola.warn("Invalid refresh interval, skipping automatic Copilot token refresh")
+    consola.warn(
+      "Invalid refresh interval, skipping automatic Copilot token refresh",
+    )
     return
   }
 
@@ -29,15 +34,26 @@ const scheduleTokenRefresh = (refreshInSeconds: number, githubToken: string) => 
 
 export const setupCopilotToken = async (githubToken?: string) => {
   if (!githubToken && !state.githubToken) {
-    consola.debug("No GitHub token available at startup; skipping Copilot token setup")
+    consola.debug(
+      "No GitHub token available at startup; skipping Copilot token setup",
+    )
     return
   }
 
   const tokenSource = githubToken ?? state.githubToken
   if (!tokenSource) return
 
-  state.githubToken = tokenSource
   const { token, refresh_in } = await getCopilotToken(tokenSource)
+
+  // If token source changed while we were fetching, do not overwrite with stale token.
+  if (state.githubToken && githubToken && state.githubToken !== githubToken) {
+    consola.warn(
+      "GitHub token changed during refresh; discarding stale Copilot token",
+    )
+    return
+  }
+
+  state.githubToken = tokenSource
   state.copilotToken = token
 
   consola.debug("GitHub Copilot Token fetched successfully!")
@@ -59,12 +75,13 @@ export const ensureCopilotToken = async (githubToken?: string) => {
     throw new Error("GitHub token missing for Copilot token acquisition")
   }
 
+  const hasCopilotToken = Boolean(state.copilotToken)
   const isTokenSourceChanged = githubToken && state.githubToken !== githubToken
-  if (!state.copilotToken || isTokenSourceChanged) {
+
+  if (!hasCopilotToken || isTokenSourceChanged) {
     await setupCopilotToken(tokenSource)
   }
 }
-
 
 /**
  * Note: GitHub token is no longer set at startup.
